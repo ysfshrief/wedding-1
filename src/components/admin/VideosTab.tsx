@@ -1,0 +1,110 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  deleteVideo,
+  getAllVideos,
+  setVideoStatus,
+} from "@/lib/data";
+import type { ModerationStatus, VideoLink } from "@/types";
+
+const STATUS_LABEL: Record<ModerationStatus, string> = {
+  pending: "قيد المراجعة",
+  approved: "مقبولة",
+  rejected: "مرفوضة",
+};
+const STATUS_STYLE: Record<ModerationStatus, string> = {
+  pending: "bg-gold/15 text-gold-dark",
+  approved: "bg-green-100 text-green-700",
+  rejected: "bg-burgundy/10 text-burgundy",
+};
+
+export function VideosTab() {
+  const [items, setItems] = useState<VideoLink[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    setItems(await getAllVideos());
+    setLoading(false);
+  };
+  useEffect(() => {
+    load();
+  }, []);
+
+  const act = async (id: string, status: ModerationStatus) => {
+    await setVideoStatus(id, status);
+    load();
+  };
+  const remove = async (id: string) => {
+    await deleteVideo(id);
+    load();
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm text-charcoal/70">
+        الروابط المقبولة تظهر تلقائياً داخل الألبوم.
+      </p>
+      {loading ? (
+        <p className="text-center text-charcoal/60">جاري التحميل...</p>
+      ) : items.length === 0 ? (
+        <p className="text-center text-charcoal/60">لا توجد روابط</p>
+      ) : (
+        <div className="grid gap-3">
+          {items.map((v) => (
+            <div
+              key={v.id}
+              className="flex flex-col gap-3 rounded-2xl border border-gold/20 bg-white/70 p-4 shadow-soft sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-ar font-bold text-burgundy">
+                    {v.name}
+                  </span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLE[v.status]}`}
+                  >
+                    {STATUS_LABEL[v.status]}
+                  </span>
+                </div>
+                <a
+                  href={v.driveLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  dir="ltr"
+                  className="block truncate text-sm text-gold-dark underline"
+                >
+                  {v.driveLink}
+                </a>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {v.status !== "approved" && (
+                  <button
+                    onClick={() => act(v.id, "approved")}
+                    className="rounded-full bg-green-600 px-3 py-1.5 text-sm text-white hover:bg-green-700"
+                  >
+                    قبول
+                  </button>
+                )}
+                {v.status !== "rejected" && (
+                  <button
+                    onClick={() => act(v.id, "rejected")}
+                    className="rounded-full bg-charcoal/70 px-3 py-1.5 text-sm text-white hover:bg-charcoal"
+                  >
+                    رفض
+                  </button>
+                )}
+                <button
+                  onClick={() => remove(v.id)}
+                  className="rounded-full bg-burgundy px-3 py-1.5 text-sm text-white hover:bg-burgundy-light"
+                >
+                  حذف
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

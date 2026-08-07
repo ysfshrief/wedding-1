@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ivory: #fbf8f3;
+  --gold: #c9a24b;
+  --burgundy: #6e1023;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--ivory);
+  color: #2b2320;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Elegant scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ivory);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--gold), var(--burgundy));
+  border-radius: 8px;
+}
+
+@layer components {
+  .text-gold-shine {
+    background: linear-gradient(
+      100deg,
+      #a47e2b 20%,
+      #e4c97e 40%,
+      #f6e7bb 50%,
+      #e4c97e 60%,
+      #a47e2b 80%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 4s linear infinite;
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(201, 162, 75, 0.28);
+  }
+
+  .glass-dark {
+    background: rgba(74, 10, 23, 0.35);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid rgba(228, 201, 126, 0.35);
+  }
+
+  .btn-luxe {
+    @apply relative inline-flex items-center justify-center gap-2 rounded-full px-8 py-3.5 font-medium tracking-wide transition-all duration-300;
+    background: linear-gradient(135deg, #e4c97e 0%, #c9a24b 50%, #a47e2b 100%);
+    color: #4a0a17;
+    box-shadow: 0 8px 30px -8px rgba(201, 162, 75, 0.5);
+  }
+  .btn-luxe:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px -8px rgba(201, 162, 75, 0.6);
+  }
+  .btn-luxe:active {
+    transform: translateY(0);
+  }
+
+  .btn-outline {
+    @apply relative inline-flex items-center justify-center gap-2 rounded-full border px-7 py-3 font-medium tracking-wide transition-all duration-300;
+    border-color: rgba(201, 162, 75, 0.5);
+    color: #6e1023;
+  }
+  .btn-outline:hover {
+    background: rgba(201, 162, 75, 0.08);
+    border-color: #c9a24b;
+  }
+
+  .section-title {
+    @apply text-center text-3xl sm:text-4xl md:text-5xl font-bold;
+  }
+
+  .divider-gold {
+    @apply mx-auto my-5 h-px w-24;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      #c9a24b 50%,
+      transparent
+    );
+  }
+}
+
+.font-numeric {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
