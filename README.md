@@ -9,18 +9,20 @@ Next.js 15 (App Router) · TypeScript (strict) · TailwindCSS · Framer Motion �
 
 ## ✨ Features
 
-- Luxury animated **welcome screen** with curtain-opening animation + background music trigger
-- **Hero** with couple names, wedding date, animated gold typography
+- Luxury animated **welcome screen** with a curtain-opening reveal; the invitation music starts on **Open Invitation** and plays once (no loop)
+- **Hero** with the couple's framed portrait (gentle unveil + parallax), names, wedding date
 - **Flip-clock countdown** → automatically replaced by a celebration message when the date arrives
 - **Details / Location** card with Google Maps button
 - **Masonry gallery** (Google Drive links) with fullscreen lightbox + lazy loading
 - **Guest Book** — messages stored as *pending*, shown only after admin approval, as memory cards
 - **Share Your Photos** — guests submit Drive links (name optional), admin-moderated
-- Floating **Music** play/pause button + **Language toggle** (Arabic RTL ↔ English LTR)
+- Floating **Music** play/pause button + **Language toggle** (English LTR by default ↔ Arabic RTL; `?lang=ar` opens in Arabic)
 - Hidden **Admin Dashboard** (triple-click "JOE INDUSTRIES" → password → full CMS)
 - Everything editable without touching code · Website visit counter · SEO optimized
 
-Palette: White / Gold / Burgundy · Fonts: Amiri + Tajawal (AR), Cormorant Garamond + Jost (EN)
+Palette: warm beige / cream / champagne / espresso, sampled from the couple's portrait · Fonts: Amiri + Tajawal (AR), Cormorant Garamond + Jost (EN)
+
+Bundled assets: `src/assets/fouad-demiana.png` (couple portrait) and `public/audio/fouad-demiana.m4a` (invitation music).
 
 ---
 
@@ -75,7 +77,7 @@ The `settings/main` document is seeded automatically the first time the site loa
 
 1. Scroll to the footer and **click "JOE INDUSTRIES" three times**.
 2. Enter the password (default **`00000`**, change via `NEXT_PUBLIC_ADMIN_PASSWORD`).
-3. Manage: names · verse · date/time · location · maps · hero image · music link · gallery · messages · drive links · enable/disable sections · view visits · copy site link.
+3. Manage: names · verse · date/time · location · maps · hero backdrop · optional music override · gallery · messages · drive links · enable/disable sections · view visits · copy site link.
 
 ---
 

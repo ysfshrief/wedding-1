@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Amiri, Tajawal, Cormorant_Garamond, Jost } from "next/font/google";
+import couple from "@/assets/fouad-demiana.png";
 import "./globals.css";
 
 const amiri = Amiri({
@@ -27,24 +28,35 @@ const jost = Jost({
   display: "swap",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
 export const metadata: Metadata = {
-  title: "دعوة فرح | Fouad & Demiana",
+  // Without an explicit URL, Next.js falls back to the Vercel deployment URL.
+  ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
+  title: "Fouad & Demiana | Wedding Invitation — دعوة فرح",
   description:
-    "دعوة فرح فؤاد و دميانة — ٨ أكتوبر. Wedding invitation of Fouad & Demiana — October 8th.",
+    "Wedding invitation of Fouad & Demiana — October 8th. دعوة فرح فؤاد و دميانة — ٨ أكتوبر.",
   keywords: ["wedding", "invitation", "فرح", "دعوة", "Fouad", "Demiana"],
   openGraph: {
-    title: "دعوة فرح | Fouad & Demiana",
-    description: "٨ أكتوبر — شرفونا بحضوركم",
+    title: "Fouad & Demiana | Wedding Invitation",
+    description: "October 8 — ٨ أكتوبر · شرفونا بحضوركم",
     type: "website",
+    images: [
+      {
+        url: couple.src,
+        width: couple.width,
+        height: couple.height,
+        alt: "Fouad & Demiana",
+      },
+    ],
   },
   robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#6E1023",
+  themeColor: "#F3EADD",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -54,8 +66,8 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="ar"
-      dir="rtl"
+      lang="en"
+      dir="ltr"
       className={`${amiri.variable} ${tajawal.variable} ${cormorant.variable} ${jost.variable}`}
     >
       <body className="font-arSans antialiased">{children}</body>

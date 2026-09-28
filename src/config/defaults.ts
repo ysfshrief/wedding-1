@@ -6,8 +6,12 @@ export const DEFAULT_SETTINGS: Settings = {
   groomName: "فؤاد",
   groomNameEn: "Fouad",
   bibleVerse: "«فَالَّذِي جَمَعَهُ اللهُ لاَ يُفَرِّقْهُ إِنْسَانٌ»",
-  bibleVerseRef: "( مر 9:10 )",
-  weddingDate: "2026-10-08T19:00:00+02:00",
+  bibleVerseRef: "( مر 10: 9 )",
+  bibleVerseEn:
+    "“What therefore God has joined together, let no one separate.”",
+  bibleVerseRefEn: "( Mark 10:9 )",
+  // Egypt observes DST until late October, so 7:00 PM local is UTC+3.
+  weddingDate: "2026-10-08T19:00:00+03:00",
   timeLabel: "٧:٠٠ مساءً",
   timeLabelEn: "7:00 PM",
   location: "كنيسة مارمرقس الكرمة (المزرعة) دمنهور",
@@ -24,8 +28,13 @@ export const DEFAULT_SETTINGS: Settings = {
   },
 };
 
-export const ADMIN_PASSWORD =
-  process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "00000";
+/** Bundled invitation assets (served from /public). */
+export const DEFAULT_MUSIC_SRC = "/audio/fouad-demiana.m4a";
+
+/** IANA zone used to display the wedding date/time. */
+export const WEDDING_TIME_ZONE = "Africa/Cairo";
+
+export const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "00000";
 
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://your-domain.vercel.app";

@@ -15,12 +15,14 @@ function Field({
   onChange,
   ltr,
   textarea,
+  hint,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   ltr?: boolean;
   textarea?: boolean;
+  hint?: string;
 }) {
   return (
     <label className="flex flex-col gap-1.5">
@@ -31,16 +33,17 @@ function Field({
           onChange={(e) => onChange(e.target.value)}
           rows={3}
           dir={ltr ? "ltr" : undefined}
-          className="resize-none rounded-xl border border-gold/30 bg-white px-4 py-2.5 outline-none focus:border-gold"
+          className="resize-none rounded-xl border border-champagne/30 bg-white px-4 py-2.5 outline-none focus:border-champagne"
         />
       ) : (
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
           dir={ltr ? "ltr" : undefined}
-          className="rounded-xl border border-gold/30 bg-white px-4 py-2.5 outline-none focus:border-gold"
+          className="rounded-xl border border-champagne/30 bg-white px-4 py-2.5 outline-none focus:border-champagne"
         />
       )}
+      {hint && <span className="text-xs text-charcoal/60">{hint}</span>}
     </label>
   );
 }
@@ -117,6 +120,19 @@ export function SettingsTab({ settings, onChange }: Props) {
             onChange={(v) => set("bibleVerseRef", v)}
           />
           <Field
+            label="Verse (English)"
+            value={settings.bibleVerseEn ?? ""}
+            onChange={(v) => set("bibleVerseEn", v)}
+            ltr
+            textarea
+          />
+          <Field
+            label="Verse reference (English)"
+            value={settings.bibleVerseRefEn ?? ""}
+            onChange={(v) => set("bibleVerseRefEn", v)}
+            ltr
+          />
+          <Field
             label="تاريخ ووقت الفرح (ISO)"
             value={settings.weddingDate}
             onChange={(v) => set("weddingDate", v)}
@@ -163,16 +179,18 @@ export function SettingsTab({ settings, onChange }: Props) {
       <Card title="الوسائط">
         <div className="grid gap-4">
           <Field
-            label="صورة الغلاف (Google Drive link)"
+            label="خلفية الغلاف (Google Drive link)"
             value={settings.heroImage}
             onChange={(v) => set("heroImage", v)}
             ltr
+            hint="اختياري — تظهر كخلفية هادئة. صورة العروسين الأساسية مدمجة في الموقع."
           />
           <Field
             label="رابط الموسيقى (Google Drive link)"
             value={settings.musicLink}
             onChange={(v) => set("musicLink", v)}
             ltr
+            hint="اتركه فارغاً لاستخدام موسيقى الدعوة الأساسية المرفوعة مع الموقع."
           />
         </div>
       </Card>
@@ -183,13 +201,16 @@ export function SettingsTab({ settings, onChange }: Props) {
             (key) => (
               <label
                 key={key}
-                className="flex items-center justify-between rounded-xl border border-gold/20 bg-white px-4 py-3"
+                className="flex items-center justify-between rounded-xl border border-champagne/20 bg-white px-4 py-3"
               >
                 <span className="text-charcoal">{SECTION_LABELS[key]}</span>
                 <button
+                  type="button"
+                  role="switch"
+                  aria-checked={settings.sections[key]}
                   onClick={() => toggleSection(key)}
                   className={`relative h-6 w-11 rounded-full transition ${
-                    settings.sections[key] ? "bg-gold" : "bg-charcoal/20"
+                    settings.sections[key] ? "bg-champagne" : "bg-charcoal/20"
                   }`}
                 >
                   <span
@@ -225,8 +246,8 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-gold/20 bg-white/60 p-6 shadow-soft">
-      <h2 className="mb-4 font-ar text-lg font-bold text-burgundy">{title}</h2>
+    <section className="rounded-2xl border border-champagne/20 bg-white/60 p-6 shadow-soft">
+      <h2 className="mb-4 font-ar text-lg font-bold text-espresso">{title}</h2>
       {children}
     </section>
   );

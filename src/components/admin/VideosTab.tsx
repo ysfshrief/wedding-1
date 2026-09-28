@@ -14,9 +14,9 @@ const STATUS_LABEL: Record<ModerationStatus, string> = {
   rejected: "مرفوضة",
 };
 const STATUS_STYLE: Record<ModerationStatus, string> = {
-  pending: "bg-gold/15 text-gold-dark",
+  pending: "bg-champagne/15 text-champagne-dark",
   approved: "bg-green-100 text-green-700",
-  rejected: "bg-burgundy/10 text-burgundy",
+  rejected: "bg-espresso/10 text-espresso",
 };
 
 export function VideosTab() {
@@ -54,11 +54,11 @@ export function VideosTab() {
           {items.map((v) => (
             <div
               key={v.id}
-              className="flex flex-col gap-3 rounded-2xl border border-gold/20 bg-white/70 p-4 shadow-soft sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-2xl border border-champagne/20 bg-white/70 p-4 shadow-soft sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-ar font-bold text-burgundy">
+                  <span className="font-ar font-bold text-espresso">
                     {v.name}
                   </span>
                   <span
@@ -72,7 +72,7 @@ export function VideosTab() {
                   target="_blank"
                   rel="noopener noreferrer"
                   dir="ltr"
-                  className="block truncate text-sm text-gold-dark underline"
+                  className="block truncate text-sm text-champagne-dark underline"
                 >
                   {v.driveLink}
                 </a>
@@ -96,7 +96,7 @@ export function VideosTab() {
                 )}
                 <button
                   onClick={() => remove(v.id)}
-                  className="rounded-full bg-burgundy px-3 py-1.5 text-sm text-white hover:bg-burgundy-light"
+                  className="rounded-full bg-espresso px-3 py-1.5 text-sm text-white hover:bg-espresso-light"
                 >
                   حذف
                 </button>
