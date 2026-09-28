@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getSettings, getVisits } from "@/lib/data";
+import {
+  adminLogout,
+  getSettings,
+  getVisits,
+  hasAdminSession,
+} from "@/lib/data";
 import { DEFAULT_SETTINGS, SITE_URL } from "@/config/defaults";
 import type { Settings } from "@/types";
 import { SettingsTab } from "./SettingsTab";
@@ -28,14 +33,25 @@ export function AdminDashboard() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (sessionStorage.getItem("admin_ok") !== "1") {
-      router.replace("/");
-      return;
-    }
-    setAuthed(true);
-    getSettings().then(setSettings);
-    getVisits().then(setVisits);
+    let alive = true;
+    // The server session (httpOnly cookie) is the source of truth.
+    hasAdminSession().then((ok) => {
+      if (!alive) return;
+      if (!ok) {
+        router.replace("/");
+        return;
+      }
+      setAuthed(true);
+      getSettings()
+        .then(setSettings)
+        .catch(() => undefined);
+      getVisits()
+        .then(setVisits)
+        .catch(() => undefined);
+    });
+    return () => {
+      alive = false;
+    };
   }, [router]);
 
   const copyLink = () => {
@@ -44,8 +60,8 @@ export function AdminDashboard() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const logout = () => {
-    sessionStorage.removeItem("admin_ok");
+  const logout = async () => {
+    await adminLogout();
     router.replace("/");
   };
 

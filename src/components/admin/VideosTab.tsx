@@ -7,6 +7,7 @@ import {
   setVideoStatus,
 } from "@/lib/data";
 import type { ModerationStatus, VideoLink } from "@/types";
+import { reportAdminError } from "./errors";
 
 const STATUS_LABEL: Record<ModerationStatus, string> = {
   pending: "قيد المراجعة",
@@ -24,20 +25,33 @@ export function VideosTab() {
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    setItems(await getAllVideos());
-    setLoading(false);
+    try {
+      setItems(await getAllVideos());
+    } catch (err) {
+      reportAdminError(err);
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => {
     load();
   }, []);
 
   const act = async (id: string, status: ModerationStatus) => {
-    await setVideoStatus(id, status);
-    load();
+    try {
+      await setVideoStatus(id, status);
+      load();
+    } catch (err) {
+      reportAdminError(err);
+    }
   };
   const remove = async (id: string) => {
-    await deleteVideo(id);
-    load();
+    try {
+      await deleteVideo(id);
+      load();
+    } catch (err) {
+      reportAdminError(err);
+    }
   };
 
   return (
@@ -54,7 +68,7 @@ export function VideosTab() {
           {items.map((v) => (
             <div
               key={v.id}
-              className="flex flex-col gap-3 rounded-2xl border border-champagne/20 bg-white/70 p-4 shadow-soft sm:flex-row sm:items-center sm:justify-between"
+              className="flex min-w-0 flex-col gap-3 rounded-2xl border border-champagne/20 bg-white/70 p-4 shadow-soft sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { getDict } from "@/messages";
-import { ADMIN_PASSWORD } from "@/config/defaults";
+import { adminLogin } from "@/lib/data";
 import type { Locale } from "@/types";
 import { Ornament } from "./Ornament";
 
@@ -20,6 +20,7 @@ export function Footer({ locale }: Props) {
   const [showDialog, setShowDialog] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
+  const [checking, setChecking] = useState(false);
 
   const handleLogoClick = () => {
     clicks.current += 1;
@@ -31,12 +32,19 @@ export function Footer({ locale }: Props) {
     }
   };
 
-  const login = () => {
-    if (password === ADMIN_PASSWORD) {
-      sessionStorage.setItem("admin_ok", "1");
-      router.push("/admin");
-    } else {
+  const login = async () => {
+    if (checking) return;
+    setChecking(true);
+    try {
+      if (await adminLogin(password)) {
+        router.push("/admin");
+      } else {
+        setError(true);
+      }
+    } catch {
       setError(true);
+    } finally {
+      setChecking(false);
     }
   };
 
@@ -92,7 +100,11 @@ export function Footer({ locale }: Props) {
                   {t.wrongPassword}
                 </p>
               )}
-              <button onClick={login} className="btn-luxe mt-5 w-full font-arSans">
+              <button
+                onClick={login}
+                disabled={checking}
+                className="btn-luxe mt-5 w-full font-arSans"
+              >
                 {t.login}
               </button>
             </motion.div>

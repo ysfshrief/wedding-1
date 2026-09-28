@@ -34,7 +34,5 @@ export const DEFAULT_MUSIC_SRC = "/audio/fouad-demiana.m4a";
 /** IANA zone used to display the wedding date/time. */
 export const WEDDING_TIME_ZONE = "Africa/Cairo";
 
-export const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "00000";
-
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://your-domain.vercel.app";

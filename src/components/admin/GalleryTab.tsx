@@ -8,6 +8,7 @@ import {
 } from "@/lib/data";
 import { driveImageUrl } from "@/lib/drive";
 import type { GalleryItem } from "@/types";
+import { reportAdminError } from "./errors";
 
 export function GalleryTab() {
   const [items, setItems] = useState<GalleryItem[]>([]);
@@ -15,8 +16,13 @@ export function GalleryTab() {
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    setItems(await getGallery());
-    setLoading(false);
+    try {
+      setItems(await getGallery());
+    } catch (err) {
+      reportAdminError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -25,14 +31,22 @@ export function GalleryTab() {
 
   const add = async () => {
     if (!link.trim()) return;
-    await addGalleryItem(link.trim());
-    setLink("");
-    load();
+    try {
+      await addGalleryItem(link.trim());
+      setLink("");
+      load();
+    } catch (err) {
+      reportAdminError(err);
+    }
   };
 
   const remove = async (id: string) => {
-    await deleteGalleryItem(id);
-    load();
+    try {
+      await deleteGalleryItem(id);
+      load();
+    } catch (err) {
+      reportAdminError(err);
+    }
   };
 
   return (

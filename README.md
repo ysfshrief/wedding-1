@@ -1,7 +1,7 @@
 # دعوة فرح — Fouad & Demiana 💍
 
 A premium, mobile-first luxury wedding invitation website.
-Next.js 15 (App Router) · TypeScript (strict) · TailwindCSS · Framer Motion · Firebase · Vercel-ready.
+Next.js 15 (App Router) · TypeScript (strict) · TailwindCSS · Framer Motion · Neon (Postgres) · Vercel-ready.
 
 **Designed & Developed by: Youssef Shrief — Joe Industries**
 
@@ -36,17 +36,22 @@ npm run dev                  # http://localhost:3000
 
 ---
 
-## 🔥 Firebase Setup
+## 🐘 Neon Database Setup
 
-1. Create a project at [console.firebase.google.com](https://console.firebase.google.com).
-2. **Build → Firestore Database → Create database** (production mode).
-3. **Project Settings → General → Your apps → Web (`</>`)** — copy the config values into `.env.local`.
-4. **Firestore → Rules** — paste the contents of `firestore.rules` and Publish.
+1. Create a free project at [neon.tech](https://neon.tech) (or add the **Neon** integration from the Vercel Marketplace — it sets `DATABASE_URL` for you).
+2. Copy the **connection string** (`postgresql://…neon.tech/…?sslmode=require`) into `DATABASE_URL` in `.env.local`.
+3. That's it — the tables are created automatically on the first request.
+   The schema is also in `db/schema.sql` if you prefer to run it in the Neon SQL editor.
 
-### Collections (auto-created on first use)
+### Tables
 `settings` · `messages` · `gallery` · `videos` · `visits`
 
-The `settings/main` document is seeded automatically the first time the site loads.
+The browser never talks to the database directly: all reads/writes go through the app's
+API routes (`src/app/api/*`). Guests can only read public data and submit *pending*
+messages/links; every admin action requires the server-side admin session.
+
+Without `DATABASE_URL` the invitation still works with the default content
+(guest-book and photo forms will report that they can't be sent).
 
 ---
 
@@ -58,25 +63,21 @@ The `settings/main` document is seeded automatically the first time the site loa
 
 | Key | Example |
 |---|---|
-| `NEXT_PUBLIC_FIREBASE_API_KEY` | `AIza...` |
-| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | `your-app.firebaseapp.com` |
-| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | `your-app` |
-| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | `your-app.appspot.com` |
-| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | `1234567890` |
-| `NEXT_PUBLIC_FIREBASE_APP_ID` | `1:123:web:abc` |
-| `NEXT_PUBLIC_ADMIN_PASSWORD` | `00000` |
+| `DATABASE_URL` | `postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require` |
+| `ADMIN_PASSWORD` | a strong password (server-only, never sent to the browser) |
+| `ADMIN_SESSION_SECRET` | optional — any long random string to sign admin sessions |
 | `NEXT_PUBLIC_SITE_URL` | `https://your-domain.vercel.app` |
 
 4. **Deploy.** Done. 🎉
 
-> ⚠️ If the Vercel build fails, it is almost always because the environment variables above were **not** added in the dashboard. Add them and redeploy.
+> ⚠️ If guest messages or admin changes don't save, check that `DATABASE_URL` is set in the Vercel dashboard, then redeploy.
 
 ---
 
 ## 🔐 Admin Panel
 
 1. Scroll to the footer and **click "JOE INDUSTRIES" three times**.
-2. Enter the password (default **`00000`**, change via `NEXT_PUBLIC_ADMIN_PASSWORD`).
+2. Enter the password (default **`00000`** — set `ADMIN_PASSWORD` in production). It is checked on the server, which then issues a 12-hour httpOnly session cookie.
 3. Manage: names · verse · date/time · location · maps · hero backdrop · optional music override · gallery · messages · drive links · enable/disable sections · view visits · copy site link.
 
 ---
@@ -95,11 +96,13 @@ The `settings/main` document is seeded automatically the first time the site loa
 src/
 ├── app/            # routes, layout, SEO (robots/sitemap/manifest)
 │   ├── page.tsx    # main invitation
-│   └── admin/      # hidden dashboard route
+│   ├── admin/      # hidden dashboard route
+│   └── api/        # API routes (Neon-backed data + admin session)
 ├── components/     # UI (Hero, Countdown, Gallery, GuestBook, ...)
 │   └── admin/      # dashboard tabs
 ├── hooks/          # useSettings, useCountdown
-├── lib/            # firebase, data access, drive helpers
+├── lib/            # client data access, drive helpers
+│   └── server/     # Neon client, queries, validation, admin auth
 ├── config/         # defaults & constants
 ├── messages/       # AR/EN dictionary
 └── types/          # shared TypeScript types

@@ -7,6 +7,7 @@ import {
   setMessageStatus,
 } from "@/lib/data";
 import type { GuestMessage, ModerationStatus } from "@/types";
+import { reportAdminError } from "./errors";
 
 const STATUS_STYLE: Record<ModerationStatus, string> = {
   pending: "bg-champagne/15 text-champagne-dark",
@@ -25,8 +26,13 @@ export function MessagesTab() {
   const [filter, setFilter] = useState<ModerationStatus | "all">("pending");
 
   const load = async () => {
-    setItems(await getAllMessages());
-    setLoading(false);
+    try {
+      setItems(await getAllMessages());
+    } catch (err) {
+      reportAdminError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -34,12 +40,20 @@ export function MessagesTab() {
   }, []);
 
   const act = async (id: string, status: ModerationStatus) => {
-    await setMessageStatus(id, status);
-    load();
+    try {
+      await setMessageStatus(id, status);
+      load();
+    } catch (err) {
+      reportAdminError(err);
+    }
   };
   const remove = async (id: string) => {
-    await deleteMessage(id);
-    load();
+    try {
+      await deleteMessage(id);
+      load();
+    } catch (err) {
+      reportAdminError(err);
+    }
   };
 
   const filtered =

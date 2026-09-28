@@ -160,21 +160,6 @@ export function WelcomeScreen({ settings, locale, opening, onOpen }: Props) {
             onClick={onOpen}
             className="btn-luxe font-arSans text-lg"
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M9 18V6l11-2v12M9 18a3 3 0 11-6 0 3 3 0 016 0zm11-2a3 3 0 11-6 0 3 3 0 016 0z"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
             {t.openInvitation}
           </button>
         </motion.div>

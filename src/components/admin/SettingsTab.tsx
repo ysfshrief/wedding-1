@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { saveSettings } from "@/lib/data";
 import type { Settings, SectionToggles } from "@/types";
+import { reportAdminError } from "./errors";
 
 interface Props {
   settings: Settings;
@@ -71,10 +72,15 @@ export function SettingsTab({ settings, onChange }: Props) {
 
   const save = async () => {
     setSaving(true);
-    await saveSettings(settings);
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    try {
+      await saveSettings(settings);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      reportAdminError(err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
