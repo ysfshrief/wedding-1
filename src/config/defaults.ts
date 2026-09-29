@@ -10,10 +10,10 @@ export const DEFAULT_SETTINGS: Settings = {
   bibleVerseEn:
     "“What therefore God has joined together, let no one separate.”",
   bibleVerseRefEn: "( Mark 10:9 )",
-  // Egypt observes DST until late October, so 7:00 PM local is UTC+3.
-  weddingDate: "2026-10-08T19:00:00+03:00",
-  timeLabel: "٧:٠٠ مساءً",
-  timeLabelEn: "7:00 PM",
+  // Egypt observes DST until late October, so 6:30 PM local is UTC+3.
+  weddingDate: "2026-10-08T18:30:00+03:00",
+  timeLabel: "٦:٣٠ مساءً",
+  timeLabelEn: "6:30 PM",
   location: "كنيسة مارمرقس الكرمة (المزرعة) دمنهور",
   locationEn: "St. Mark Church, El-Karma (El-Mazraa), Damanhour",
   mapsLink: "https://maps.google.com/?q=كنيسة+مارمرقس+الكرمة+دمنهور",

@@ -7,6 +7,7 @@ import { getDict } from "@/messages";
 import { adminLogin } from "@/lib/data";
 import type { Locale } from "@/types";
 import { Ornament } from "./Ornament";
+import { JoeIndustriesLogo } from "./JoeIndustriesLogo";
 
 interface Props {
   locale: Locale;
@@ -58,10 +59,10 @@ export function Footer({ locale }: Props) {
 
       <button
         onClick={handleLogoClick}
-        className="mx-auto mt-4 block select-none font-en text-sm tracking-[0.35em] text-champagne-light/70 transition hover:text-champagne-light"
+        className="group mx-auto mt-5 block select-none"
         aria-label="Joe Industries"
       >
-        JOE INDUSTRIES
+        <JoeIndustriesLogo className="w-44 sm:w-52" />
       </button>
 
       <AnimatePresence>

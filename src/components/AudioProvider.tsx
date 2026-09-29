@@ -39,8 +39,16 @@ function fadeIn(el: HTMLAudioElement, ref: FadeRef) {
   el.volume = 0;
   const t0 = performance.now();
   const step = (now: number) => {
-    const p = Math.min(1, (now - t0) / FADE_IN_MS);
-    el.volume = TARGET_VOLUME * p * (2 - p); // ease-out
+    // rAF timestamps can precede t0, so clamp: a negative volume throws and
+    // would leave the track playing silently at volume 0.
+    const p = Math.min(1, Math.max(0, (now - t0) / FADE_IN_MS));
+    try {
+      el.volume = Math.min(TARGET_VOLUME, TARGET_VOLUME * p * (2 - p)); // ease-out
+    } catch {
+      el.volume = TARGET_VOLUME;
+      ref.current = null;
+      return;
+    }
     ref.current = p < 1 ? requestAnimationFrame(step) : null;
   };
   ref.current = requestAnimationFrame(step);
@@ -54,30 +62,12 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const [playing, setPlaying] = useState(false);
   const [ready, setReady] = useState(false);
 
-  /** Lazily creates the element so it exists whichever effect runs first. */
-  const ensureEl = useCallback((): HTMLAudioElement => {
-    if (audioRef.current) return audioRef.current;
-    const el = new Audio();
-    // Plays a single time per opening — never loops.
-    el.loop = false;
-    el.preload = "auto";
-    el.volume = TARGET_VOLUME;
-    el.addEventListener("play", () => setPlaying(true));
-    el.addEventListener("pause", () => setPlaying(false));
-    el.addEventListener("ended", () => {
-      stopFade(fadeRef);
-      setPlaying(false);
-    });
-    // A broken custom (Drive) link falls back to the bundled track.
-    el.addEventListener("error", () => {
-      if (sourceRef.current && sourceRef.current !== DEFAULT_MUSIC_SRC) {
-        sourceRef.current = DEFAULT_MUSIC_SRC;
-        el.src = DEFAULT_MUSIC_SRC;
-      }
-    });
-    audioRef.current = el;
-    return el;
-  }, []);
+  const retryRef = useRef<(() => void) | null>(null);
+
+  const clearRetry = () => {
+    retryRef.current?.();
+    retryRef.current = null;
+  };
 
   useEffect(() => {
     // Pause while the tab is hidden; resume the same play-through on return.
@@ -93,64 +83,116 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       }
     };
     document.addEventListener("visibilitychange", onVisibility);
+    const el = audioRef.current;
 
     return () => {
       document.removeEventListener("visibilitychange", onVisibility);
       stopFade(fadeRef);
-      const el = audioRef.current;
-      if (el) {
-        el.pause();
-        el.removeAttribute("src");
-        el.load();
-      }
-      audioRef.current = null;
+      clearRetry();
+      el?.pause();
       sourceRef.current = "";
     };
   }, []);
 
-  const setSource = useCallback(
-    (src: string) => {
-      if (!src || src === sourceRef.current) return;
-      const el = ensureEl();
-      sourceRef.current = src;
-      el.src = src;
-      setReady(true);
-    },
-    [ensureEl]
-  );
+  const setSource = useCallback((src: string) => {
+    const el = audioRef.current;
+    if (!el || !src || src === sourceRef.current) return;
+    sourceRef.current = src;
+    el.src = src;
+    setReady(true);
+  }, []);
+
+  /**
+   * If a mobile browser still refuses playback, try again on the guest's
+   * next tap/click/key press (each of those counts as a fresh user gesture).
+   */
+  const retryOnNextGesture = useCallback((el: HTMLAudioElement) => {
+    clearRetry();
+    const events = ["touchend", "pointerup", "click", "keydown"] as const;
+    const retry = () => {
+      clearRetry();
+      if (el.paused && !el.ended) el.play().catch(() => undefined);
+    };
+    events.forEach((e) =>
+      document.addEventListener(e, retry, { capture: true, passive: true })
+    );
+    retryRef.current = () =>
+      events.forEach((e) =>
+        document.removeEventListener(e, retry, { capture: true })
+      );
+  }, []);
 
   const start = useCallback(() => {
     const el = audioRef.current;
     if (!el || !sourceRef.current) return;
     // Must run synchronously inside the click handler (autoplay policies).
-    el.currentTime = 0;
+    // Older iOS WebKit throws if currentTime is set before metadata loads.
+    if (el.readyState > 0) {
+      try {
+        el.currentTime = 0;
+      } catch {
+        /* already at the start */
+      }
+    }
     fadeIn(el, fadeRef);
-    el.play().catch(() => {
+    const attempt = el.play();
+    attempt?.catch(() => {
       stopFade(fadeRef);
       el.volume = TARGET_VOLUME;
       setPlaying(false);
+      retryOnNextGesture(el);
     });
-  }, []);
+  }, [retryOnNextGesture]);
 
   const toggle = useCallback(() => {
     const el = audioRef.current;
     if (!el || !sourceRef.current) return;
+    clearRetry();
+    stopFade(fadeRef);
     if (el.paused) {
-      stopFade(fadeRef);
       el.volume = TARGET_VOLUME;
       el.play().catch(() => setPlaying(false));
     } else {
-      stopFade(fadeRef);
       el.pause();
     }
   }, []);
+
+  const onError = () => {
+    // A broken custom (Drive) link falls back to the bundled track.
+    const el = audioRef.current;
+    if (el && sourceRef.current && sourceRef.current !== DEFAULT_MUSIC_SRC) {
+      sourceRef.current = DEFAULT_MUSIC_SRC;
+      el.src = DEFAULT_MUSIC_SRC;
+    }
+  };
 
   const value = useMemo(
     () => ({ playing, ready, start, toggle, setSource }),
     [playing, ready, start, toggle, setSource]
   );
 
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={value}>
+      {/* In-page element (not `new Audio()`): most reliable on iOS/Android. */}
+      <audio
+        ref={audioRef}
+        preload="auto"
+        playsInline
+        // Plays a single time per opening — never loops.
+        loop={false}
+        aria-hidden="true"
+        className="hidden"
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onEnded={() => {
+          stopFade(fadeRef);
+          setPlaying(false);
+        }}
+        onError={onError}
+      />
+      {children}
+    </Ctx.Provider>
+  );
 }
 
 export function useAudio() {
