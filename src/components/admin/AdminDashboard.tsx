@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getSettings, getVisits } from "@/lib/data";
+import {
+  adminLogout,
+  getSettings,
+  getVisits,
+  hasAdminSession,
+} from "@/lib/data";
 import { DEFAULT_SETTINGS, SITE_URL } from "@/config/defaults";
 import type { Settings } from "@/types";
 import { SettingsTab } from "./SettingsTab";
@@ -28,14 +33,25 @@ export function AdminDashboard() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (sessionStorage.getItem("admin_ok") !== "1") {
-      router.replace("/");
-      return;
-    }
-    setAuthed(true);
-    getSettings().then(setSettings);
-    getVisits().then(setVisits);
+    let alive = true;
+    // The server session (httpOnly cookie) is the source of truth.
+    hasAdminSession().then((ok) => {
+      if (!alive) return;
+      if (!ok) {
+        router.replace("/");
+        return;
+      }
+      setAuthed(true);
+      getSettings()
+        .then(setSettings)
+        .catch(() => undefined);
+      getVisits()
+        .then(setVisits)
+        .catch(() => undefined);
+    });
+    return () => {
+      alive = false;
+    };
   }, [router]);
 
   const copyLink = () => {
@@ -44,33 +60,33 @@ export function AdminDashboard() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const logout = () => {
-    sessionStorage.removeItem("admin_ok");
+  const logout = async () => {
+    await adminLogout();
     router.replace("/");
   };
 
   if (!authed) return null;
 
   return (
-    <div dir="rtl" className="min-h-screen bg-cream font-arSans">
-      <header className="sticky top-0 z-30 border-b border-gold/20 bg-white/80 backdrop-blur-md">
+    <div dir="rtl" lang="ar" className="min-h-screen bg-cream font-arSans">
+      <header className="sticky top-0 z-30 border-b border-champagne/20 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-4">
-          <h1 className="font-ar text-xl font-bold text-burgundy">
+          <h1 className="font-ar text-xl font-bold text-espresso">
             لوحة التحكم
           </h1>
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-gold/10 px-3 py-1.5 text-sm text-gold-dark">
+            <span className="rounded-full bg-champagne/10 px-3 py-1.5 text-sm text-champagne-dark">
               👁 {visits} زيارة
             </span>
             <button
               onClick={copyLink}
-              className="rounded-full border border-gold/40 px-3 py-1.5 text-sm text-burgundy transition hover:bg-gold/10"
+              className="rounded-full border border-champagne/40 px-3 py-1.5 text-sm text-espresso transition hover:bg-champagne/10"
             >
               {copied ? "✓ تم النسخ" : "نسخ رابط الموقع"}
             </button>
             <button
               onClick={logout}
-              className="rounded-full bg-burgundy px-3 py-1.5 text-sm text-ivory transition hover:bg-burgundy-light"
+              className="rounded-full bg-espresso px-3 py-1.5 text-sm text-ivory transition hover:bg-espresso-light"
             >
               خروج
             </button>
@@ -83,8 +99,8 @@ export function AdminDashboard() {
               onClick={() => setTab(tb.id)}
               className={`whitespace-nowrap rounded-full px-4 py-2 text-sm transition ${
                 tab === tb.id
-                  ? "bg-burgundy text-ivory"
-                  : "text-charcoal hover:bg-gold/10"
+                  ? "bg-espresso text-ivory"
+                  : "text-charcoal hover:bg-champagne/10"
               }`}
             >
               {tb.label}

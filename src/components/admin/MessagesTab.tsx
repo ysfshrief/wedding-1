@@ -7,11 +7,12 @@ import {
   setMessageStatus,
 } from "@/lib/data";
 import type { GuestMessage, ModerationStatus } from "@/types";
+import { reportAdminError } from "./errors";
 
 const STATUS_STYLE: Record<ModerationStatus, string> = {
-  pending: "bg-gold/15 text-gold-dark",
+  pending: "bg-champagne/15 text-champagne-dark",
   approved: "bg-green-100 text-green-700",
-  rejected: "bg-burgundy/10 text-burgundy",
+  rejected: "bg-espresso/10 text-espresso",
 };
 const STATUS_LABEL: Record<ModerationStatus, string> = {
   pending: "قيد المراجعة",
@@ -25,8 +26,13 @@ export function MessagesTab() {
   const [filter, setFilter] = useState<ModerationStatus | "all">("pending");
 
   const load = async () => {
-    setItems(await getAllMessages());
-    setLoading(false);
+    try {
+      setItems(await getAllMessages());
+    } catch (err) {
+      reportAdminError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -34,12 +40,20 @@ export function MessagesTab() {
   }, []);
 
   const act = async (id: string, status: ModerationStatus) => {
-    await setMessageStatus(id, status);
-    load();
+    try {
+      await setMessageStatus(id, status);
+      load();
+    } catch (err) {
+      reportAdminError(err);
+    }
   };
   const remove = async (id: string) => {
-    await deleteMessage(id);
-    load();
+    try {
+      await deleteMessage(id);
+      load();
+    } catch (err) {
+      reportAdminError(err);
+    }
   };
 
   const filtered =
@@ -54,8 +68,8 @@ export function MessagesTab() {
             onClick={() => setFilter(f)}
             className={`rounded-full px-4 py-1.5 text-sm transition ${
               filter === f
-                ? "bg-burgundy text-ivory"
-                : "border border-gold/30 text-charcoal hover:bg-gold/10"
+                ? "bg-espresso text-ivory"
+                : "border border-champagne/30 text-charcoal hover:bg-champagne/10"
             }`}
           >
             {f === "all" ? "الكل" : STATUS_LABEL[f]}
@@ -72,10 +86,10 @@ export function MessagesTab() {
           {filtered.map((m) => (
             <div
               key={m.id}
-              className="rounded-2xl border border-gold/20 bg-white/70 p-5 shadow-soft"
+              className="rounded-2xl border border-champagne/20 bg-white/70 p-5 shadow-soft"
             >
               <div className="mb-2 flex items-center justify-between">
-                <span className="font-ar font-bold text-burgundy">
+                <span className="font-ar font-bold text-espresso">
                   {m.name}
                 </span>
                 <span
@@ -104,7 +118,7 @@ export function MessagesTab() {
                 )}
                 <button
                   onClick={() => remove(m.id)}
-                  className="rounded-full bg-burgundy px-3 py-1.5 text-sm text-white transition hover:bg-burgundy-light"
+                  className="rounded-full bg-espresso px-3 py-1.5 text-sm text-white transition hover:bg-espresso-light"
                 >
                   حذف
                 </button>

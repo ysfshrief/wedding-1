@@ -8,6 +8,7 @@ import {
 } from "@/lib/data";
 import { driveImageUrl } from "@/lib/drive";
 import type { GalleryItem } from "@/types";
+import { reportAdminError } from "./errors";
 
 export function GalleryTab() {
   const [items, setItems] = useState<GalleryItem[]>([]);
@@ -15,8 +16,13 @@ export function GalleryTab() {
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    setItems(await getGallery());
-    setLoading(false);
+    try {
+      setItems(await getGallery());
+    } catch (err) {
+      reportAdminError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -25,20 +31,28 @@ export function GalleryTab() {
 
   const add = async () => {
     if (!link.trim()) return;
-    await addGalleryItem(link.trim());
-    setLink("");
-    load();
+    try {
+      await addGalleryItem(link.trim());
+      setLink("");
+      load();
+    } catch (err) {
+      reportAdminError(err);
+    }
   };
 
   const remove = async (id: string) => {
-    await deleteGalleryItem(id);
-    load();
+    try {
+      await deleteGalleryItem(id);
+      load();
+    } catch (err) {
+      reportAdminError(err);
+    }
   };
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="rounded-2xl border border-gold/20 bg-white/60 p-6 shadow-soft">
-        <h2 className="mb-4 font-ar text-lg font-bold text-burgundy">
+      <section className="rounded-2xl border border-champagne/20 bg-white/60 p-6 shadow-soft">
+        <h2 className="mb-4 font-ar text-lg font-bold text-espresso">
           إضافة صورة للألبوم
         </h2>
         <div className="flex flex-col gap-3 sm:flex-row">
@@ -47,7 +61,7 @@ export function GalleryTab() {
             onChange={(e) => setLink(e.target.value)}
             placeholder="Google Drive image link"
             dir="ltr"
-            className="flex-1 rounded-xl border border-gold/30 bg-white px-4 py-2.5 outline-none focus:border-gold"
+            className="flex-1 rounded-xl border border-champagne/30 bg-white px-4 py-2.5 outline-none focus:border-champagne"
           />
           <button onClick={add} className="btn-luxe whitespace-nowrap">
             إضافة
@@ -64,6 +78,8 @@ export function GalleryTab() {
               key={it.id}
               className="group relative overflow-hidden rounded-xl shadow-soft"
             >
+              {/* Drive thumbnails are already resized by Google. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={driveImageUrl(it.driveLink, 400)}
                 alt=""
@@ -72,7 +88,7 @@ export function GalleryTab() {
               />
               <button
                 onClick={() => remove(it.id)}
-                className="absolute right-2 top-2 rounded-full bg-burgundy/90 px-2.5 py-1 text-xs text-ivory opacity-0 transition group-hover:opacity-100"
+                className="absolute right-2 top-2 rounded-full bg-espresso/90 px-2.5 py-1 text-xs text-ivory opacity-0 transition group-hover:opacity-100"
               >
                 حذف
               </button>

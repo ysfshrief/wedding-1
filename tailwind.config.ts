@@ -1,40 +1,50 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * Warm-neutral palette sampled from the couple's portrait
+ * (cream backdrop, linen dress, sand suit, champagne frames, walnut accents).
+ */
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        ivory: "#FBF8F3",
-        cream: "#F5EFE6",
-        gold: {
-          DEFAULT: "#C9A24B",
-          light: "#E4C97E",
-          dark: "#A47E2B",
+        ivory: "#FAF6EF",
+        cream: "#F3EADD",
+        linen: "#E9DECD",
+        sand: "#D8C5AB",
+        taupe: "#A58B73",
+        champagne: {
+          DEFAULT: "#B89770",
+          light: "#E6D5B8",
+          dark: "#7F6146",
         },
-        burgundy: {
-          DEFAULT: "#6E1023",
-          light: "#8B1D34",
-          dark: "#4A0A17",
+        espresso: {
+          DEFAULT: "#5B4636",
+          light: "#735A47",
+          dark: "#3B2D24",
         },
-        charcoal: "#2B2320",
+        charcoal: "#2E241D",
       },
       fontFamily: {
         ar: ["var(--font-amiri)", "serif"],
         arSans: ["var(--font-tajawal)", "sans-serif"],
-        en: ["var(--font-cormorant)", "serif"],
-        enSans: ["var(--font-jost)", "sans-serif"],
+        en: ["var(--font-cormorant)", "var(--font-amiri)", "serif"],
+        enSans: ["var(--font-jost)", "var(--font-tajawal)", "sans-serif"],
       },
       boxShadow: {
-        luxe: "0 20px 60px -15px rgba(110, 16, 35, 0.25)",
-        gold: "0 8px 30px -8px rgba(201, 162, 75, 0.4)",
-        soft: "0 10px 40px -12px rgba(43, 35, 32, 0.18)",
+        luxe: "0 24px 60px -18px rgba(59, 45, 36, 0.28)",
+        champagne: "0 10px 32px -10px rgba(184, 151, 112, 0.55)",
+        soft: "0 12px 40px -14px rgba(59, 45, 36, 0.16)",
       },
       backgroundImage: {
-        "gold-gradient":
-          "linear-gradient(135deg, #E4C97E 0%, #C9A24B 45%, #A47E2B 100%)",
-        "burgundy-gradient":
-          "linear-gradient(160deg, #8B1D34 0%, #6E1023 55%, #4A0A17 100%)",
+        "champagne-gradient":
+          "linear-gradient(135deg, #EFE2CB 0%, #D6BC98 48%, #B89770 100%)",
+        "espresso-gradient":
+          "linear-gradient(160deg, #6A5241 0%, #4E3B2E 55%, #33271F 100%)",
+      },
+      transitionTimingFunction: {
+        luxe: "cubic-bezier(0.22, 1, 0.36, 1)",
       },
       keyframes: {
         shimmer: {

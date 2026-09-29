@@ -17,6 +17,9 @@ export interface Settings {
   groomNameEn: string;
   bibleVerse: string;
   bibleVerseRef: string;
+  /** Optional English rendering of the verse (falls back to Arabic). */
+  bibleVerseEn?: string;
+  bibleVerseRefEn?: string;
   /** ISO string for the wedding date & time */
   weddingDate: string;
   timeLabel: string;
@@ -24,7 +27,9 @@ export interface Settings {
   location: string;
   locationEn: string;
   mapsLink: string;
+  /** Optional Drive image shown softly behind the hero. */
   heroImage: string;
+  /** Optional Drive audio link; overrides the bundled invitation music. */
   musicLink: string;
   sections: SectionToggles;
 }

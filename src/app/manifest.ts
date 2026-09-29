@@ -6,8 +6,8 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Wedding",
     start_url: "/",
     display: "standalone",
-    background_color: "#FBF8F3",
-    theme_color: "#6E1023",
+    background_color: "#FAF6EF",
+    theme_color: "#F3EADD",
     icons: [],
   };
 }
